@@ -186,7 +186,23 @@ func (e *encoder) marshal(tag string, in reflect.Value) {
 func (e *encoder) mapv(tag string, in reflect.Value) {
 	e.mappingv(tag, func() {
 		keys := keyList(in.MapKeys())
-		sort.Sort(keys)
+		// sort.Sort(keys)
+		// 确保被删除的节点不出现在第一个位置。
+		sort.Slice(keys, func(i, j int) bool {
+			a := keys[i].String()
+			b := keys[j].String()
+			if reflect.TypeOf(in.MapIndex(keys[i]).Interface()).Kind() == reflect.Map {
+				va := in.MapIndex(keys[i]).Interface().(map[string]interface{})
+				vb := in.MapIndex(keys[j]).Interface().(map[string]interface{})
+				if va["kuboard_spray_remove_node"] == true && vb["kuboard_spray_remove_node"] == true {
+					return strings.Compare(a, b) < 0
+				}
+				if vb["kuboard_spray_remove_node"] == true {
+					return true
+				}
+			}
+			return strings.Compare(a, b) < 0
+		})
 		for _, k := range keys {
 			e.marshal("", k)
 			e.marshal("", in.MapIndex(k))
