@@ -191,14 +191,19 @@ func (e *encoder) mapv(tag string, in reflect.Value) {
 		sort.Slice(keys, func(i, j int) bool {
 			a := keys[i].String()
 			b := keys[j].String()
-			if reflect.TypeOf(in.MapIndex(keys[i]).Interface()).Kind() == reflect.Map {
-				va := in.MapIndex(keys[i]).Interface().(map[string]interface{})
-				vb := in.MapIndex(keys[j]).Interface().(map[string]interface{})
-				if va["kuboard_spray_remove_node"] == true && vb["kuboard_spray_remove_node"] == true {
-					return strings.Compare(a, b) < 0
-				}
-				if vb["kuboard_spray_remove_node"] == true {
-					return true
+			if in.MapIndex(keys[i]).Interface() != nil && in.MapIndex(keys[j]).Interface() != nil {
+				if reflect.TypeOf(in.MapIndex(keys[i]).Interface()).Kind() == reflect.Map && reflect.TypeOf(in.MapIndex(keys[j]).Interface()).Kind() == reflect.Map {
+					switch in.MapIndex(keys[i]).Interface().(type) {
+					case map[string]interface{}:
+						va := in.MapIndex(keys[i]).Interface().(map[string]interface{})
+						vb := in.MapIndex(keys[j]).Interface().(map[string]interface{})
+						if va["kuboard_spray_remove_node"] == true && vb["kuboard_spray_remove_node"] == true {
+							return strings.Compare(a, b) < 0
+						}
+						if vb["kuboard_spray_remove_node"] == true {
+							return true
+						}
+					}
 				}
 			}
 			return strings.Compare(a, b) < 0
