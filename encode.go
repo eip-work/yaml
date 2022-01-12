@@ -197,10 +197,10 @@ func (e *encoder) mapv(tag string, in reflect.Value) {
 					case map[string]interface{}:
 						va := in.MapIndex(keys[i]).Interface().(map[string]interface{})
 						vb := in.MapIndex(keys[j]).Interface().(map[string]interface{})
-						if va["kuboard_spray_remove_node"] == true && vb["kuboard_spray_remove_node"] == true {
+						if va["kuboardspray_node_action"] != nil && vb["kuboardspray_node_action"] != nil {
 							return strings.Compare(a, b) < 0
 						}
-						if vb["kuboard_spray_remove_node"] == true {
+						if vb["kuboardspray_node_action"] == true {
 							return true
 						}
 					}
